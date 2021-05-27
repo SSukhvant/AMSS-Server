@@ -32,27 +32,25 @@ app.post('/api', (request, response) => {
   console.log(data);
 });
 
+const hardware = new Datastore('hardware.db');
+hardware.loadDatabase();
 
+app.get('/hw', (request, response) => {
+  hardware.find({}, (err, action) => {
+    if (err) {
+      response.end();
+      return;
+    }
+    response.json(action);
+  });
+});
 
-
-// app.get('/auth', (request, response) => {
-//   database.find({}, (err, userdata) => {
-//     if (err) {
-//       response.end();
-//       return;
-//     }
-//     response.json(userdata);
-//   });
-// });
-
-// app.post('/auth', async (request, response) => {
-//   try {
-//     const hashedPassword = await bcrypt.hash(request.body.password, 10)
-//     const userdata = { name: request.body.name, password: hashedPassword }
-//     authdb.insert(userdata);
-//     response.json(userdata);
-//     response.status(201).send()
-//   } catch {
-//     response.status(500).send()
-//   }
-// })
+app.post('/hw', (request, response) => {
+  const action = request.body;
+  const timestamp = Date.now();
+  action.timestamp = timestamp;
+  hardware.remove({}, { multi: true }, function (err, numRemoved) {});
+  hardware.insert(action);
+  response.json(action);
+  console.log(action);
+});
